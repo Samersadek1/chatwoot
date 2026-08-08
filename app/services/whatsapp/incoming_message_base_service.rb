@@ -102,7 +102,11 @@ class Whatsapp::IncomingMessageBaseService
     attach_files
     attach_location if message_type == 'location'
     @message.save!
+    after_message_created
   end
+
+  # Hook for provider-specific post-create work (e.g. deferred WhatsApp media retries).
+  def after_message_created; end
 
   def set_contact
     if outgoing_echo
@@ -134,7 +138,8 @@ class Whatsapp::IncomingMessageBaseService
     attachment_file = download_attachment_file(attachment_payload)
     if attachment_file.blank?
       # Avoid blank bubbles when Meta media download fails (expired token, permissions, etc.).
-      @message.content ||= I18n.t('conversations.messages.whatsapp.media_download_failed')
+      @message.content ||= media_download_failed_content
+      handle_media_download_failure(attachment_payload)
       return
     end
 
@@ -148,6 +153,17 @@ class Whatsapp::IncomingMessageBaseService
       }
     )
   end
+
+  def media_download_failed_content
+    if outgoing_echo
+      I18n.t('conversations.messages.whatsapp.media_download_failed_echo')
+    else
+      I18n.t('conversations.messages.whatsapp.media_download_failed')
+    end
+  end
+
+  # Cloud provider overrides this to stash media IDs for deferred retry.
+  def handle_media_download_failure(_attachment_payload); end
 
   def attach_location
     location = messages_data.first['location']

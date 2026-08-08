@@ -302,6 +302,7 @@ en:
         call_permission_request_body: 'We would like to call you regarding your conversation.'
         unsupported_message: 'This message is unavailable.'
         media_download_failed: 'Media could not be downloaded. Ask the customer to resend it.'
+        media_download_failed_echo: 'Media from the WhatsApp phone app could not be downloaded yet. Retrying automatically…'
       voice_call:
         twilio: 'Voice Call'
         whatsapp: 'WhatsApp Call'
