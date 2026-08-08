@@ -44,7 +44,9 @@ module Whatsapp::IncomingMessageServiceHelpers
   end
 
   def unprocessable_message_type?(message_type)
-    %w[reaction ephemeral request_welcome].include?(message_type)
+    # revoke/edit have no media id — treating them as attachments creates
+    # false "Media could not be downloaded" bubbles.
+    %w[reaction ephemeral request_welcome revoke edit].include?(message_type)
   end
 
   def processed_waid(waid)
